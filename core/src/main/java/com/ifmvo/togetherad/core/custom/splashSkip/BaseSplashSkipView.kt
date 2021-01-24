@@ -11,21 +11,19 @@ import android.view.ViewGroup
  */
 abstract class BaseSplashSkipView {
 
-    /**
-     * 创建跳过按钮的布局
-     */
-    abstract fun onCreateSkipView(context: Context): View
+  /**
+   * 创建跳过按钮的布局
+   */
+  abstract fun onCreateSkipView(context: Context): View
 
-    /**
-     * 处理倒计时的展示，单位：秒
-     */
-    open fun handleTime(second: Int) {
-    }
+  /**
+   * 处理倒计时的展示，单位：秒
+   */
+  open fun handleTime(second: Int) {
+  }
 
-    /**
-     * 获取布局参数，控制跳过按钮的位置
-     */
-    abstract fun getLayoutParams(): ViewGroup.LayoutParams
-
-
+  /**
+   * 获取布局参数，控制跳过按钮的位置
+   */
+  abstract fun getLayoutParams(): ViewGroup.LayoutParams
 }

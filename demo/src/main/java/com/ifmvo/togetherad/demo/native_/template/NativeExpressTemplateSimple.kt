@@ -11,14 +11,14 @@ import com.ifmvo.togetherad.gdt.native_.express.NativeExpressViewGdt
  */
 class NativeExpressTemplateSimple : BaseNativeExpressTemplate() {
 
-    override fun getNativeExpressView(adProviderType: String): BaseNativeExpressView? {
-        return when (adProviderType) {
-            AdProviderType.GDT.type -> {
-                NativeExpressViewGdt()
-            }
-            else -> {
-                throw Exception("模板配置错误")
-            }
-        }
+  override fun getNativeExpressView(adProviderType: String): BaseNativeExpressView? {
+    return when (adProviderType) {
+      AdProviderType.GDT.type -> {
+        NativeExpressViewGdt()
+      }
+      else -> {
+        throw Exception("模板配置错误")
+      }
     }
+  }
 }

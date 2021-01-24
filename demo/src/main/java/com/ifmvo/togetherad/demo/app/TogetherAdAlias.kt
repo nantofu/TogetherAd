@@ -11,46 +11,45 @@ package com.ifmvo.togetherad.demo.app
  */
 object TogetherAdAlias {
 
-    //开屏
-    const val AD_SPLASH = "ad_splash"
+  //开屏
+  const val AD_SPLASH = "ad_splash"
 
-    //原生模板2.0 简单使用
-    const val AD_NATIVE_EXPRESS_2_SIMPLE = "ad_native_express2_simple"
+  //原生模板2.0 简单使用
+  const val AD_NATIVE_EXPRESS_2_SIMPLE = "ad_native_express2_simple"
 
-    //原生模板2.0 在 RecyclerView 中使用
-    const val AD_NATIVE_EXPRESS_2_RECYCLERVIEW = "ad_native_express2_recyclerview"
+  //原生模板2.0 在 RecyclerView 中使用
+  const val AD_NATIVE_EXPRESS_2_RECYCLERVIEW = "ad_native_express2_recyclerview"
 
-    //原生模板 简单使用
-    const val AD_NATIVE_EXPRESS_SIMPLE = "ad_native_express_simple"
+  //原生模板 简单使用
+  const val AD_NATIVE_EXPRESS_SIMPLE = "ad_native_express_simple"
 
-    //原生模板 在 RecyclerView 中使用
-    const val AD_NATIVE_EXPRESS_RECYCLERVIEW = "ad_native_express_recyclerview"
+  //原生模板 在 RecyclerView 中使用
+  const val AD_NATIVE_EXPRESS_RECYCLERVIEW = "ad_native_express_recyclerview"
 
-    //原生 简单使用
-    const val AD_NATIVE_SIMPLE = "ad_native_simple"
+  //原生 简单使用
+  const val AD_NATIVE_SIMPLE = "ad_native_simple"
 
-    //原生 在 RecyclerView 中使用
-    const val AD_NATIVE_RECYCLERVIEW = "ad_native_recyclerview"
+  //原生 在 RecyclerView 中使用
+  const val AD_NATIVE_RECYCLERVIEW = "ad_native_recyclerview"
 
-    //Banner
-    const val AD_BANNER = "ad_banner"
+  //Banner
+  const val AD_BANNER = "ad_banner"
 
-    //插屏广告
-    const val AD_INTER = "ad_inter"
+  //插屏广告
+  const val AD_INTER = "ad_inter"
 
-    //激励广告
-    const val AD_REWARD = "ad_reward"
+  //激励广告
+  const val AD_REWARD = "ad_reward"
 
-    //全屏视频广告
-    const val AD_FULL_VIDEO = "ad_full_video"
+  //全屏视频广告
+  const val AD_FULL_VIDEO = "ad_full_video"
 
-    //开屏混合使用
-    const val AD_HYBRID_SPLASH = "ad_splash_and_native"
+  //开屏混合使用
+  const val AD_HYBRID_SPLASH = "ad_splash_and_native"
 
-    //原生模板混合
-    const val AD_HYBRID_EXPRESS = "ad_hybrid_express"
+  //原生模板混合
+  const val AD_HYBRID_EXPRESS = "ad_hybrid_express"
 
-    //原生模板混合
-    const val AD_HYBRID_VERTICAL_PREMOVIE = "ad_hybrid_vertical_premovie"
-
+  //原生模板混合
+  const val AD_HYBRID_VERTICAL_PREMOVIE = "ad_hybrid_vertical_premovie"
 }

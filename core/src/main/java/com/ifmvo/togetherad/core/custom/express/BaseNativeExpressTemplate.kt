@@ -6,6 +6,5 @@ package com.ifmvo.togetherad.core.custom.express
  */
 abstract class BaseNativeExpressTemplate {
 
-    abstract fun getNativeExpressView(adProviderType: String): BaseNativeExpressView?
-
+  abstract fun getNativeExpressView(adProviderType: String): BaseNativeExpressView?
 }

@@ -21,154 +21,183 @@ import java.lang.ref.WeakReference
  */
 class AdHelperNativeExpress(
 
-        @NotNull activity: Activity,
-        @NotNull alias: String,
-        ratioMap: LinkedHashMap<String, Int>? = null,
-        adCount: Int
+  @NotNull activity: Activity,
+  @NotNull alias: String,
+  ratioMap: LinkedHashMap<String, Int>? = null,
+  adCount: Int
 
 ) : BaseHelper() {
 
-    private var mActivity: WeakReference<Activity> = WeakReference(activity)
-    private var mAlias: String = alias
-    private var mRatioMap: LinkedHashMap<String, Int>? = ratioMap
-    private var mAdCount: Int = adCount
-    private var adProvider: BaseAdProvider? = null
+  private var mActivity: WeakReference<Activity> = WeakReference(activity)
+  private var mAlias: String = alias
+  private var mRatioMap: LinkedHashMap<String, Int>? = ratioMap
+  private var mAdCount: Int = adCount
+  private var adProvider: BaseAdProvider? = null
 
-    //所有请求到的广告容器
-    private var mAdList = mutableListOf<Any>()
+  //所有请求到的广告容器
+  private var mAdList = mutableListOf<Any>()
 
-    companion object {
+  companion object {
 
-        private const val defaultAdCount = 1
+    private const val defaultAdCount = 1
 
-        fun show(@Nullable adObject: Any?, @Nullable container: ViewGroup?, @NotNull nativeExpressTemplate: BaseNativeExpressTemplate) {
-            if (adObject == null) {
-                "adObject 广告对象不能为空".logw()
-                return
-            }
-            if (container == null) {
-                "container 广告容器不能为空".logw()
-                return
-            }
-            TogetherAd.mProviders.entries.forEach { entry ->
-                val adProvider = AdProviderLoader.loadAdProvider(entry.key)
-                if (adProvider?.nativeExpressAdIsBelongTheProvider(adObject) == true) {
-                    val nativeView = nativeExpressTemplate.getNativeExpressView(entry.key)
-                    nativeView?.showNativeExpress(entry.key, adObject, container)
-                    return@forEach
-                }
-            }
+    fun show(
+      @Nullable adObject: Any?,
+      @Nullable container: ViewGroup?,
+      @NotNull nativeExpressTemplate: BaseNativeExpressTemplate
+    ) {
+      if (adObject == null) {
+        "adObject 广告对象不能为空".logw()
+        return
+      }
+      if (container == null) {
+        "container 广告容器不能为空".logw()
+        return
+      }
+      TogetherAd.mProviders.entries.forEach { entry ->
+        val adProvider = AdProviderLoader.loadAdProvider(entry.key)
+        if (adProvider?.nativeExpressAdIsBelongTheProvider(adObject) == true) {
+          val nativeView = nativeExpressTemplate.getNativeExpressView(entry.key)
+          nativeView?.showNativeExpress(entry.key, adObject, container)
+          return@forEach
         }
-
-        fun destroyExpressAd(@Nullable adObject: Any?) {
-            if (adObject == null) {
-                "adObject 广告对象不能为空".logw()
-                return
-            }
-            TogetherAd.mProviders.entries.forEach { entry ->
-                val adProvider = AdProviderLoader.loadAdProvider(entry.key)
-                adProvider?.destroyNativeExpressAd(adObject)
-            }
-        }
-
-        fun destroyExpressAd(@Nullable adObjectList: List<Any>?) {
-            if (adObjectList?.isEmpty() != false) {
-                "adObjectList 广告对象List不能为空".logw()
-                return
-            }
-            adObjectList.forEach { destroyExpressAd(it) }
-        }
+      }
     }
 
-    //为了照顾 Java 调用的同学
-    constructor(
-            @NotNull activity: Activity,
-            @NotNull alias: String,
-            adCount: Int
-    ) : this(activity, alias, null, adCount)
-
-    //为了照顾 Java 调用的同学
-    constructor(
-            @NotNull activity: Activity,
-            @NotNull alias: String
-    ) : this(activity, alias, null, defaultAdCount)
-
-    fun getExpressList(listener: NativeExpressListener? = null) {
-        val currentRatioMap: LinkedHashMap<String, Int> = if (mRatioMap?.isEmpty() != false) TogetherAd.getPublicProviderRatio() else mRatioMap!!
-
-        startTimer(listener)
-        getExpressListForMap(currentRatioMap, listener)
+    fun destroyExpressAd(@Nullable adObject: Any?) {
+      if (adObject == null) {
+        "adObject 广告对象不能为空".logw()
+        return
+      }
+      TogetherAd.mProviders.entries.forEach { entry ->
+        val adProvider = AdProviderLoader.loadAdProvider(entry.key)
+        adProvider?.destroyNativeExpressAd(adObject)
+      }
     }
 
-    private fun getExpressListForMap(@NotNull ratioMap: LinkedHashMap<String, Int>, listener: NativeExpressListener? = null) {
+    fun destroyExpressAd(@Nullable adObjectList: List<Any>?) {
+      if (adObjectList?.isEmpty() != false) {
+        "adObjectList 广告对象List不能为空".logw()
+        return
+      }
+      adObjectList.forEach { destroyExpressAd(it) }
+    }
+  }
 
-        val currentAdCount = if (mAdCount <= 0) defaultAdCount else mAdCount
+  //为了照顾 Java 调用的同学
+  constructor(
+    @NotNull activity: Activity,
+    @NotNull alias: String,
+    adCount: Int
+  ) : this(activity, alias, null, adCount)
 
-        val adProviderType = DispatchUtil.getAdProvider(mAlias, ratioMap)
+  //为了照顾 Java 调用的同学
+  constructor(
+    @NotNull activity: Activity,
+    @NotNull alias: String
+  ) : this(activity, alias, null, defaultAdCount)
 
-        if (adProviderType?.isEmpty() != false || mActivity.get() == null) {
-            cancelTimer()
-            listener?.onAdFailedAll(FailedAllMsg.failedAll_noDispatch)
-            return
+  fun getExpressList(listener: NativeExpressListener? = null) {
+    val currentRatioMap: LinkedHashMap<String, Int> =
+      if (mRatioMap?.isEmpty() != false) TogetherAd.getPublicProviderRatio() else mRatioMap!!
+
+    startTimer(listener)
+    getExpressListForMap(currentRatioMap, listener)
+  }
+
+  private fun getExpressListForMap(
+    @NotNull ratioMap: LinkedHashMap<String, Int>,
+    listener: NativeExpressListener? = null
+  ) {
+
+    val currentAdCount = if (mAdCount <= 0) defaultAdCount else mAdCount
+
+    val adProviderType = DispatchUtil.getAdProvider(mAlias, ratioMap)
+
+    if (adProviderType?.isEmpty() != false || mActivity.get() == null) {
+      cancelTimer()
+      listener?.onAdFailedAll(FailedAllMsg.failedAll_noDispatch)
+      return
+    }
+
+    adProvider = AdProviderLoader.loadAdProvider(adProviderType)
+
+    if (adProvider == null) {
+      "$adProviderType ${mActivity.get()?.getString(R.string.no_init)}".loge()
+      getExpressListForMap(filterType(ratioMap, adProviderType), listener)
+      return
+    }
+
+    adProvider?.getNativeExpressAdList(mActivity.get()!!, adProviderType, mAlias, currentAdCount,
+      object : NativeExpressListener {
+        override fun onAdStartRequest(providerType: String) {
+          listener?.onAdStartRequest(providerType)
         }
 
-        adProvider = AdProviderLoader.loadAdProvider(adProviderType)
+        override fun onAdFailed(
+          providerType: String,
+          failedMsg: String?
+        ) {
+          if (isFetchOverTime) return
 
-        if (adProvider == null) {
-            "$adProviderType ${mActivity.get()?.getString(R.string.no_init)}".loge()
-            getExpressListForMap(filterType(ratioMap, adProviderType), listener)
-            return
+          getExpressListForMap(filterType(ratioMap, adProviderType), listener)
+
+          listener?.onAdFailed(providerType, failedMsg)
         }
 
-        adProvider?.getNativeExpressAdList(mActivity.get()!!, adProviderType, mAlias, currentAdCount, object : NativeExpressListener {
-            override fun onAdStartRequest(providerType: String) {
-                listener?.onAdStartRequest(providerType)
-            }
+        override fun onAdLoaded(
+          providerType: String,
+          adList: List<Any>
+        ) {
+          if (isFetchOverTime) return
 
-            override fun onAdFailed(providerType: String, failedMsg: String?) {
-                if (isFetchOverTime) return
+          cancelTimer()
+          mAdList.addAll(adList)
+          listener?.onAdLoaded(providerType, adList)
+        }
 
-                getExpressListForMap(filterType(ratioMap, adProviderType), listener)
+        override fun onAdClicked(
+          providerType: String,
+          adObject: Any?
+        ) {
+          listener?.onAdClicked(providerType, adObject)
+        }
 
-                listener?.onAdFailed(providerType, failedMsg)
-            }
+        override fun onAdShow(
+          providerType: String,
+          adObject: Any?
+        ) {
+          listener?.onAdShow(providerType, adObject)
+        }
 
-            override fun onAdLoaded(providerType: String, adList: List<Any>) {
-                if (isFetchOverTime) return
+        override fun onAdRenderSuccess(
+          providerType: String,
+          adObject: Any?
+        ) {
+          listener?.onAdRenderSuccess(providerType, adObject)
+        }
 
-                cancelTimer()
-                mAdList.addAll(adList)
-                listener?.onAdLoaded(providerType, adList)
-            }
+        override fun onAdRenderFail(
+          providerType: String,
+          adObject: Any?
+        ) {
+          listener?.onAdRenderFail(providerType, adObject)
+        }
 
-            override fun onAdClicked(providerType: String, adObject: Any?) {
-                listener?.onAdClicked(providerType, adObject)
-            }
+        override fun onAdClosed(
+          providerType: String,
+          adObject: Any?
+        ) {
+          listener?.onAdClosed(providerType, adObject)
+        }
+      })
+  }
 
-            override fun onAdShow(providerType: String, adObject: Any?) {
-                listener?.onAdShow(providerType, adObject)
-            }
-
-            override fun onAdRenderSuccess(providerType: String, adObject: Any?) {
-                listener?.onAdRenderSuccess(providerType, adObject)
-            }
-
-            override fun onAdRenderFail(providerType: String, adObject: Any?) {
-                listener?.onAdRenderFail(providerType, adObject)
-            }
-
-            override fun onAdClosed(providerType: String, adObject: Any?) {
-                listener?.onAdClosed(providerType, adObject)
-            }
-        })
-    }
-
-    /**
-     * 销毁所有请求到的广告
-     */
-    fun destroyAllExpressAd() {
-        destroyExpressAd(mAdList)
-        mAdList.clear()
-    }
-
+  /**
+   * 销毁所有请求到的广告
+   */
+  fun destroyAllExpressAd() {
+    destroyExpressAd(mAdList)
+    mAdList.clear()
+  }
 }

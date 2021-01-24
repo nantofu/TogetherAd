@@ -9,54 +9,53 @@ import java.lang.reflect.Constructor
  */
 object AdProviderLoader {
 
-    fun loadAdProvider(providerType: String): BaseAdProvider? {
-        var adProvider: BaseAdProvider? = null
-        try {
-            val providerInstance = getProviderInstance(providerType)
-            if (providerInstance is BaseAdProvider) {
-                adProvider = providerInstance
-            }
-        } catch (e: Exception) {
-            e.printStackTrace()
+  fun loadAdProvider(providerType: String): BaseAdProvider? {
+    var adProvider: BaseAdProvider? = null
+    try {
+      val providerInstance = getProviderInstance(providerType)
+      if (providerInstance is BaseAdProvider) {
+        adProvider = providerInstance
+      }
+    } catch (e: Exception) {
+      e.printStackTrace()
+    }
+    return adProvider
+  }
+
+  private fun getProviderInstance(providerType: String): Any? {
+    var instance: Any? = null
+    try {
+      TogetherAd.getProvider(providerType)?.classPath?.let { classPath ->
+        getSDKClass(classPath)?.let { clz ->
+          instance = getConstructor(clz)?.newInstance()
         }
-        return adProvider
+      }
+    } catch (e: Exception) {
+      e.printStackTrace()
     }
 
-    private fun getProviderInstance(providerType: String): Any? {
-        var instance: Any? = null
-        try {
-            TogetherAd.getProvider(providerType)?.classPath?.let { classPath ->
-                getSDKClass(classPath)?.let { clz ->
-                    instance = getConstructor(clz)?.newInstance()
-                }
-            }
-        } catch (e: Exception) {
-            e.printStackTrace()
-        }
+    return instance
+  }
 
-        return instance
+  private fun getConstructor(clz: Class<*>): Constructor<*>? {
+    var result: Constructor<*>? = null
+    try {
+      result = clz.getConstructor()
+    } catch (e: Exception) {
+      e.printStackTrace()
     }
 
-    private fun getConstructor(clz: Class<*>): Constructor<*>? {
-        var result: Constructor<*>? = null
-        try {
-            result = clz.getConstructor()
-        } catch (e: Exception) {
-            e.printStackTrace()
-        }
+    return result
+  }
 
-        return result
+  private fun getSDKClass(classPath: String): Class<*>? {
+    var result: Class<*>? = null
+    try {
+      result = Class.forName(classPath)
+    } catch (e: ClassNotFoundException) {
+      e.printStackTrace()
     }
 
-    private fun getSDKClass(classPath: String): Class<*>? {
-        var result: Class<*>? = null
-        try {
-            result = Class.forName(classPath)
-        } catch (e: ClassNotFoundException) {
-            e.printStackTrace()
-        }
-
-        return result
-    }
-
+    return result
+  }
 }

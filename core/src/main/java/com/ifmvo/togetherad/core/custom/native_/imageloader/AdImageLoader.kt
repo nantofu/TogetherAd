@@ -1,8 +1,8 @@
 package com.ifmvo.togetherad.core.custom.native_.imageloader
 
 import android.content.Context
-import org.jetbrains.annotations.NotNull
 import android.widget.ImageView
+import org.jetbrains.annotations.NotNull
 
 /**
  * 加载图片的接口
@@ -11,6 +11,9 @@ import android.widget.ImageView
  */
 interface AdImageLoader {
 
-    fun loadImage(@NotNull context: Context, @NotNull imageView: ImageView, @NotNull imgUrl: String)
-
+  fun loadImage(
+    @NotNull context: Context,
+    @NotNull imageView: ImageView,
+    @NotNull imgUrl: String
+  )
 }

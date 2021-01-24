@@ -16,63 +16,67 @@ import kotlin.math.roundToInt
  */
 class NativeViewGdtSimple3(onDismiss: (providerType: String) -> Unit) : BaseNativeViewGdt() {
 
-    private var mOnDismiss: (providerType: String) -> Unit = onDismiss
+  private var mOnDismiss: (providerType: String) -> Unit = onDismiss
 
-    override fun getLayoutRes(): Int {
-        return R.layout.layout_native_view_gdt_simple_3
-    }
+  override fun getLayoutRes(): Int {
+    return R.layout.layout_native_view_gdt_simple_3
+  }
 
-    override fun getNativeAdContainer(): NativeAdContainer? {
-        return rootView?.findViewById(R.id.native_ad_container)
-    }
+  override fun getNativeAdContainer(): NativeAdContainer? {
+    return rootView?.findViewById(R.id.native_ad_container)
+  }
 
-    override fun getTitleTextView(): TextView? {
-        return rootView?.findViewById(R.id.tv_title)
-    }
+  override fun getTitleTextView(): TextView? {
+    return rootView?.findViewById(R.id.tv_title)
+  }
 
-    override fun getDescTextView(): TextView? {
-        return rootView?.findViewById(R.id.tv_desc)
-    }
+  override fun getDescTextView(): TextView? {
+    return rootView?.findViewById(R.id.tv_desc)
+  }
 
-    override fun getMediaView(): MediaView? {
-        return rootView?.findViewById(R.id.gdt_media_view)
-    }
+  override fun getMediaView(): MediaView? {
+    return rootView?.findViewById(R.id.gdt_media_view)
+  }
 
-    override fun getMainImageView(): ImageView? {
-        return rootView?.findViewById(R.id.img_poster)
-    }
+  override fun getMainImageView(): ImageView? {
+    return rootView?.findViewById(R.id.img_poster)
+  }
 
-    override fun showNative(adProviderType: String, adObject: Any, container: ViewGroup, listener: NativeViewListener?) {
-        super.showNative(adProviderType, adObject, container, listener)
+  override fun showNative(
+    adProviderType: String,
+    adObject: Any,
+    container: ViewGroup,
+    listener: NativeViewListener?
+  ) {
+    super.showNative(adProviderType, adObject, container, listener)
 
-        //添加跳过按钮
-        val customSkipView = SplashSkipViewSimple2()
-        val skipView = customSkipView.onCreateSkipView(container.context)
-        skipView.run {
-            container.addView(this, customSkipView.getLayoutParams())
-            setOnClickListener {
-                mTimer?.cancel()
-                container.removeAllViews()
-                mOnDismiss.invoke(adProviderType)
-            }
-        }
-
-        //开始倒计时
+    //添加跳过按钮
+    val customSkipView = SplashSkipViewSimple2()
+    val skipView = customSkipView.onCreateSkipView(container.context)
+    skipView.run {
+      container.addView(this, customSkipView.getLayoutParams())
+      setOnClickListener {
         mTimer?.cancel()
-        mTimer = object : CountDownTimer(5000, 1000) {
-            override fun onFinish() {
-                container.removeAllViews()
-                mOnDismiss.invoke(adProviderType)
-            }
-
-            override fun onTick(millisUntilFinished: Long) {
-                val second = (millisUntilFinished / 1000f).roundToInt()
-                customSkipView.handleTime(second)
-            }
-        }
-        mTimer?.start()
-
+        container.removeAllViews()
+        mOnDismiss.invoke(adProviderType)
+      }
     }
 
-    private var mTimer: CountDownTimer? = null
+    //开始倒计时
+    mTimer?.cancel()
+    mTimer = object : CountDownTimer(5000, 1000) {
+      override fun onFinish() {
+        container.removeAllViews()
+        mOnDismiss.invoke(adProviderType)
+      }
+
+      override fun onTick(millisUntilFinished: Long) {
+        val second = (millisUntilFinished / 1000f).roundToInt()
+        customSkipView.handleTime(second)
+      }
+    }
+    mTimer?.start()
+  }
+
+  private var mTimer: CountDownTimer? = null
 }

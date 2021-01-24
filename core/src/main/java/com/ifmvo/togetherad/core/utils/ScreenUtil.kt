@@ -9,11 +9,11 @@ import android.content.Context
  */
 object ScreenUtil {
 
-    fun getDisplayMetricsWidth(context: Context): Int {
-        return context.applicationContext.resources.displayMetrics.widthPixels
-    }
+  fun getDisplayMetricsWidth(context: Context): Int {
+    return context.applicationContext.resources.displayMetrics.widthPixels
+  }
 
-    fun getDisplayMetricsHeight(context: Context): Int {
-        return context.applicationContext.resources.displayMetrics.heightPixels
-    }
+  fun getDisplayMetricsHeight(context: Context): Int {
+    return context.applicationContext.resources.displayMetrics.heightPixels
+  }
 }

@@ -11,4 +11,5 @@
     android:paddingRight="10dp"
     android:textColor="@android:color/white"
     android:textSize="13sp"
-    tools:text="2" />
+    tools:text="2"
+    />

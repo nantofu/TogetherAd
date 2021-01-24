@@ -7,7 +7,11 @@ import com.ifmvo.togetherad.core.TogetherAd
 import com.ifmvo.togetherad.core.config.AdProviderLoader
 import com.ifmvo.togetherad.core.helper.AdHelperNativePro
 import com.ifmvo.togetherad.core.helper.BaseHelper
-import com.ifmvo.togetherad.core.listener.*
+import com.ifmvo.togetherad.core.listener.BaseListener
+import com.ifmvo.togetherad.core.listener.FullVideoListener
+import com.ifmvo.togetherad.core.listener.NativeListener
+import com.ifmvo.togetherad.core.listener.NativeViewListener
+import com.ifmvo.togetherad.core.listener.RewardListener
 import com.ifmvo.togetherad.core.provider.BaseAdProvider
 import com.ifmvo.togetherad.core.utils.DispatchUtil
 import com.ifmvo.togetherad.core.utils.loge
@@ -27,227 +31,252 @@ import java.lang.ref.WeakReference
  */
 class AdHelperHybridVerticalPreMovie(
 
-        @NotNull activity: Activity,
-        @NotNull alias: String,
-        @NotNull container: ViewGroup,
-        ratioMap: LinkedHashMap<String, Int>? = null
+  @NotNull activity: Activity,
+  @NotNull alias: String,
+  @NotNull container: ViewGroup,
+  ratioMap: LinkedHashMap<String, Int>? = null
 
 ) : BaseHelper() {
 
-    private var mActivity: WeakReference<Activity> = WeakReference(activity)
-    private var mAlias: String = alias
-    private var mContainer: ViewGroup = container
-    private var mRatioMap: LinkedHashMap<String, Int>? = ratioMap
-    private var mListener: VerticalPreMovieListener? = null
-    private var adProvider: BaseAdProvider? = null
+  private var mActivity: WeakReference<Activity> = WeakReference(activity)
+  private var mAlias: String = alias
+  private var mContainer: ViewGroup = container
+  private var mRatioMap: LinkedHashMap<String, Int>? = ratioMap
+  private var mListener: VerticalPreMovieListener? = null
+  private var adProvider: BaseAdProvider? = null
 
-    //为了照顾 Java 调用的同学
-    constructor(
-            @NotNull activity: Activity,
-            @NotNull alias: String,
-            @NotNull container: ViewGroup
-    ) : this(activity, alias, container, null)
+  //为了照顾 Java 调用的同学
+  constructor(
+    @NotNull activity: Activity,
+    @NotNull alias: String,
+    @NotNull container: ViewGroup
+  ) : this(activity, alias, container, null)
 
-    fun loadAndShow(listener: VerticalPreMovieListener? = null) {
-        onDestroy()
+  fun loadAndShow(listener: VerticalPreMovieListener? = null) {
+    onDestroy()
 
-        mListener = listener
+    mListener = listener
 
-        val currentRatioMap: LinkedHashMap<String, Int> = if (mRatioMap?.isEmpty() != false) TogetherAd.getPublicProviderRatio() else mRatioMap!!
+    val currentRatioMap: LinkedHashMap<String, Int> =
+      if (mRatioMap?.isEmpty() != false) TogetherAd.getPublicProviderRatio() else mRatioMap!!
 
-        startTimer(mListener)
-        reload(currentRatioMap)
+    startTimer(mListener)
+    reload(currentRatioMap)
+  }
+
+  private fun reload(@NotNull ratioMap: LinkedHashMap<String, Int>) {
+
+    val adProviderType = DispatchUtil.getAdProvider(mAlias, ratioMap)
+
+    if (adProviderType?.isEmpty() != false || mActivity.get() == null) {
+      cancelTimer()
+      mListener?.onAdFailedAll(FailedAllMsg.failedAll_noDispatch)
+      return
     }
 
-    private fun reload(@NotNull ratioMap: LinkedHashMap<String, Int>) {
+    adProvider = AdProviderLoader.loadAdProvider(adProviderType)
 
-        val adProviderType = DispatchUtil.getAdProvider(mAlias, ratioMap)
+    if (adProvider == null) {
+      "$adProviderType ${mActivity.get()?.getString(R.string.no_init)}".loge()
+      reload(filterType(ratioMap, adProviderType))
+      return
+    }
 
-        if (adProviderType?.isEmpty() != false || mActivity.get() == null) {
-            cancelTimer()
-            mListener?.onAdFailedAll(FailedAllMsg.failedAll_noDispatch)
-            return
+    when (adProviderType) {
+      //广点通分为激励和原生
+      AdProviderType.GDT.type -> {
+        //                realLoadReward(adProviderType, ratioMap)
+        realLoadNative(adProviderType, ratioMap)
+      }
+      //穿山甲是全屏视频广告
+      AdProviderType.CSJ.type -> {
+        realLoadFullScreen(adProviderType, ratioMap)
+      }
+    }
+  }
+
+  private fun realLoadReward(
+    adProviderType: String,
+    ratioMap: LinkedHashMap<String, Int>
+  ) {
+    adProvider?.requestRewardAd(mActivity.get()!!, adProviderType, mAlias, object : RewardListener {
+      override fun onAdStartRequest(providerType: String) {
+        mListener?.onAdStartRequest(providerType)
+      }
+
+      override fun onAdFailed(
+        providerType: String,
+        failedMsg: String?
+      ) {
+        if (isFetchOverTime) return
+
+        reload(filterType(ratioMap, adProviderType))
+
+        mListener?.onAdFailed(providerType, failedMsg)
+      }
+
+      override fun onAdClicked(providerType: String) {
+        mListener?.onAdClicked(providerType)
+      }
+
+      override fun onAdLoaded(providerType: String) {
+        if (isFetchOverTime) return
+
+        if (mActivity.get() == null) {
+          reload(filterType(ratioMap, adProviderType))
+          mListener?.onAdFailed(providerType, "Activity为空")
+          return
         }
+        cancelTimer()
+        mListener?.onAdLoaded(providerType)
 
-        adProvider = AdProviderLoader.loadAdProvider(adProviderType)
+        adProvider?.showRewardAd(mActivity.get()!!)
+      }
 
-        if (adProvider == null) {
-            "$adProviderType ${mActivity.get()?.getString(R.string.no_init)}".loge()
+      override fun onAdExpose(providerType: String) {
+        mListener?.onAdExpose(providerType)
+      }
+
+      override fun onAdClose(providerType: String) {
+        mListener?.onAdClose(providerType)
+      }
+    })
+  }
+
+  private fun realLoadFullScreen(
+    adProviderType: String,
+    ratioMap: LinkedHashMap<String, Int>
+  ) {
+    adProvider?.requestFullVideoAd(mActivity.get()!!, adProviderType, mAlias,
+      object : FullVideoListener {
+        override fun onAdLoaded(providerType: String) {
+          if (isFetchOverTime) return
+
+          if (mActivity.get() == null) {
             reload(filterType(ratioMap, adProviderType))
+            mListener?.onAdFailed(providerType, "Activity为空")
             return
+          }
+
+          cancelTimer()
+          mListener?.onAdLoaded(providerType)
+
+          adProvider?.showFullVideoAd(mActivity.get()!!)
         }
 
-        when (adProviderType) {
-            //广点通分为激励和原生
-            AdProviderType.GDT.type -> {
-//                realLoadReward(adProviderType, ratioMap)
-                realLoadNative(adProviderType, ratioMap)
-            }
-            //穿山甲是全屏视频广告
-            AdProviderType.CSJ.type -> {
-                realLoadFullScreen(adProviderType, ratioMap)
-            }
+        override fun onAdClicked(providerType: String) {
+          mListener?.onAdClicked(providerType)
         }
-    }
 
-    private fun realLoadReward(adProviderType: String, ratioMap: LinkedHashMap<String, Int>) {
-        adProvider?.requestRewardAd(mActivity.get()!!, adProviderType, mAlias, object : RewardListener {
-            override fun onAdStartRequest(providerType: String) {
-                mListener?.onAdStartRequest(providerType)
-            }
+        override fun onAdShow(providerType: String) {
+          mListener?.onAdExpose(providerType)
+        }
 
-            override fun onAdFailed(providerType: String, failedMsg: String?) {
-                if (isFetchOverTime) return
+        override fun onAdClose(providerType: String) {
+          mListener?.onAdClose(providerType)
+        }
 
-                reload(filterType(ratioMap, adProviderType))
+        override fun onAdStartRequest(providerType: String) {
+          mListener?.onAdStartRequest(providerType)
+        }
 
-                mListener?.onAdFailed(providerType, failedMsg)
-            }
+        override fun onAdFailed(
+          providerType: String,
+          failedMsg: String?
+        ) {
+          if (isFetchOverTime) return
 
-            override fun onAdClicked(providerType: String) {
-                mListener?.onAdClicked(providerType)
-            }
+          reload(filterType(ratioMap, adProviderType))
 
-            override fun onAdLoaded(providerType: String) {
-                if (isFetchOverTime) return
+          mListener?.onAdFailed(providerType, failedMsg)
+        }
+      })
+  }
 
-                if (mActivity.get() == null) {
-                    reload(filterType(ratioMap, adProviderType))
-                    mListener?.onAdFailed(providerType, "Activity为空")
-                    return
-                }
-                cancelTimer()
-                mListener?.onAdLoaded(providerType)
+  private var mAdObject: Any? = null
+  private fun realLoadNative(
+    adProviderType: String,
+    ratioMap: LinkedHashMap<String, Int>
+  ) {
+    CsjProvider.Native.nativeAdType = AdSlot.TYPE_FEED
+    adProvider?.getNativeAdList(mActivity.get()!!, adProviderType, mAlias, 1,
+      object : NativeListener {
+        override fun onAdLoaded(
+          providerType: String,
+          adList: List<Any>
+        ) {
+          if (isFetchOverTime) return
 
-                adProvider?.showRewardAd(mActivity.get()!!)
-            }
+          cancelTimer()
+          mListener?.onAdLoaded(providerType)
 
-            override fun onAdExpose(providerType: String) {
+          mAdObject = adList[0]
+          fun onDismiss(adProviderType: String) {
+            AdHelperNativePro.destroyAd(mAdObject)
+            mListener?.onAdClose(adProviderType)
+          }
+
+          AdHelperNativePro.show(adObject = mAdObject, container = mContainer,
+            nativeTemplate = NativeTemplateSimple3(::onDismiss),
+            listener = object : NativeViewListener {
+              override fun onAdExposed(providerType: String) {
                 mListener?.onAdExpose(providerType)
-            }
+              }
 
-            override fun onAdClose(providerType: String) {
-                mListener?.onAdClose(providerType)
-            }
-        })
-    }
-
-    private fun realLoadFullScreen(adProviderType: String, ratioMap: LinkedHashMap<String, Int>) {
-        adProvider?.requestFullVideoAd(mActivity.get()!!, adProviderType, mAlias, object : FullVideoListener {
-            override fun onAdLoaded(providerType: String) {
-                if (isFetchOverTime) return
-
-                if (mActivity.get() == null) {
-                    reload(filterType(ratioMap, adProviderType))
-                    mListener?.onAdFailed(providerType, "Activity为空")
-                    return
-                }
-
-                cancelTimer()
-                mListener?.onAdLoaded(providerType)
-
-                adProvider?.showFullVideoAd(mActivity.get()!!)
-            }
-
-            override fun onAdClicked(providerType: String) {
+              override fun onAdClicked(providerType: String) {
                 mListener?.onAdClicked(providerType)
-            }
+              }
+            })
+        }
 
-            override fun onAdShow(providerType: String) {
-                mListener?.onAdExpose(providerType)
-            }
+        override fun onAdStartRequest(providerType: String) {
+          mListener?.onAdStartRequest(providerType)
+        }
 
-            override fun onAdClose(providerType: String) {
-                mListener?.onAdClose(providerType)
-            }
+        override fun onAdFailed(
+          providerType: String,
+          failedMsg: String?
+        ) {
+          if (isFetchOverTime) return
 
-            override fun onAdStartRequest(providerType: String) {
-                mListener?.onAdStartRequest(providerType)
-            }
+          reload(filterType(ratioMap, adProviderType))
 
-            override fun onAdFailed(providerType: String, failedMsg: String?) {
-                if (isFetchOverTime) return
+          mListener?.onAdFailed(providerType, failedMsg)
+        }
+      })
+  }
 
-                reload(filterType(ratioMap, adProviderType))
+  fun onResume() {
+    AdHelperNativePro.resumeAd(mAdObject)
+  }
 
-                mListener?.onAdFailed(providerType, failedMsg)
-            }
-        })
-    }
+  fun onPause() {
+    AdHelperNativePro.pauseAd(mAdObject)
+  }
 
-    private var mAdObject: Any? = null
-    private fun realLoadNative(adProviderType: String, ratioMap: LinkedHashMap<String, Int>) {
-        CsjProvider.Native.nativeAdType = AdSlot.TYPE_FEED
-        adProvider?.getNativeAdList(mActivity.get()!!, adProviderType, mAlias, 1, object : NativeListener {
-            override fun onAdLoaded(providerType: String, adList: List<Any>) {
-                if (isFetchOverTime) return
+  fun onDestroy() {
+    AdHelperNativePro.destroyAd(mAdObject)
+  }
 
-                cancelTimer()
-                mListener?.onAdLoaded(providerType)
+  interface VerticalPreMovieListener : BaseListener {
+    /**
+     * 请求到了广告
+     */
+    fun onAdLoaded(@NotNull providerType: String) {}
 
-                mAdObject = adList[0]
-                fun onDismiss(adProviderType: String) {
-                    AdHelperNativePro.destroyAd(mAdObject)
-                    mListener?.onAdClose(adProviderType)
-                }
+    /**
+     * 广告被点击了
+     */
+    fun onAdClicked(@NotNull providerType: String) {}
 
-                AdHelperNativePro.show(adObject = mAdObject, container = mContainer, nativeTemplate = NativeTemplateSimple3(::onDismiss), listener = object : NativeViewListener {
-                    override fun onAdExposed(providerType: String) {
-                        mListener?.onAdExpose(providerType)
-                    }
+    /**
+     * 广告曝光了（ 和 onAdShow 的区别是展示不一定曝光，曝光一定展示，需要展示一定的时间才会曝光，曝光的条件是提供商规定的 ）
+     */
+    fun onAdExpose(@NotNull providerType: String) {}
 
-                    override fun onAdClicked(providerType: String) {
-                        mListener?.onAdClicked(providerType)
-                    }
-                })
-            }
-
-            override fun onAdStartRequest(providerType: String) {
-                mListener?.onAdStartRequest(providerType)
-            }
-
-            override fun onAdFailed(providerType: String, failedMsg: String?) {
-                if (isFetchOverTime) return
-
-                reload(filterType(ratioMap, adProviderType))
-
-                mListener?.onAdFailed(providerType, failedMsg)
-            }
-        })
-    }
-
-    fun onResume() {
-        AdHelperNativePro.resumeAd(mAdObject)
-    }
-
-    fun onPause() {
-        AdHelperNativePro.pauseAd(mAdObject)
-    }
-
-    fun onDestroy() {
-        AdHelperNativePro.destroyAd(mAdObject)
-    }
-
-    interface VerticalPreMovieListener : BaseListener {
-        /**
-         * 请求到了广告
-         */
-        fun onAdLoaded(@NotNull providerType: String) {}
-
-        /**
-         * 广告被点击了
-         */
-        fun onAdClicked(@NotNull providerType: String) {}
-
-        /**
-         * 广告曝光了（ 和 onAdShow 的区别是展示不一定曝光，曝光一定展示，需要展示一定的时间才会曝光，曝光的条件是提供商规定的 ）
-         */
-        fun onAdExpose(@NotNull providerType: String) {}
-
-        /**
-         * 广告被关闭了
-         */
-        fun onAdClose(@NotNull providerType: String) {}
-
-    }
+    /**
+     * 广告被关闭了
+     */
+    fun onAdClose(@NotNull providerType: String) {}
+  }
 }

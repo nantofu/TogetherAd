@@ -15,55 +15,108 @@ import com.ifmvo.togetherad.core.listener.NativeExpress2ViewListener
  */
 class NativeExpress2ViewCsj : BaseNativeExpress2View() {
 
-    override fun showNativeExpress2(activity: Activity, adProviderType: String, adObject: Any, container: ViewGroup, listener: NativeExpress2ViewListener?) {
-        if (adObject !is TTNativeExpressAd) return
+  override fun showNativeExpress2(
+    activity: Activity,
+    adProviderType: String,
+    adObject: Any,
+    container: ViewGroup,
+    listener: NativeExpress2ViewListener?
+  ) {
+    if (adObject !is TTNativeExpressAd) return
 
+    container.removeAllViews()
+
+    adObject.setExpressInteractionListener(object : TTNativeExpressAd.ExpressAdInteractionListener {
+      override fun onAdClicked(
+        view: View?,
+        type: Int
+      ) {
+        listener?.onAdClicked(adProviderType)
+      }
+
+      override fun onAdShow(
+        view: View?,
+        type: Int
+      ) {
+        listener?.onAdExposed(adProviderType)
+      }
+
+      override fun onRenderSuccess(
+        view: View?,
+        width: Float,
+        height: Float
+      ) {
+        listener?.onAdRenderSuccess(adProviderType)
+      }
+
+      override fun onRenderFail(
+        view: View?,
+        errorMsg: String?,
+        errorCode: Int
+      ) {
+        listener?.onAdRenderFailed(adProviderType)
+      }
+    })
+
+    adObject.setDislikeCallback(activity, object : TTAdDislike.DislikeInteractionCallback {
+      override fun onSelected(
+        position: Int,
+        value: String
+      ) {
         container.removeAllViews()
+        listener?.onAdClose(adProviderType)
+      }
 
-        adObject.setExpressInteractionListener(object : TTNativeExpressAd.ExpressAdInteractionListener {
-            override fun onAdClicked(view: View?, type: Int) {
-                listener?.onAdClicked(adProviderType)
-            }
+      override fun onCancel() {}
+      override fun onRefuse() {}
+    })
 
-            override fun onAdShow(view: View?, type: Int) {
-                listener?.onAdExposed(adProviderType)
-            }
-
-            override fun onRenderSuccess(view: View?, width: Float, height: Float) {
-                listener?.onAdRenderSuccess(adProviderType)
-            }
-
-            override fun onRenderFail(view: View?, errorMsg: String?, errorCode: Int) {
-                listener?.onAdRenderFailed(adProviderType)
-            }
-        })
-
-        adObject.setDislikeCallback(activity, object : TTAdDislike.DislikeInteractionCallback {
-            override fun onSelected(position: Int, value: String) {
-                container.removeAllViews()
-                listener?.onAdClose(adProviderType)
-            }
-
-            override fun onCancel() {}
-            override fun onRefuse() {}
-        })
-
-        if (adObject.interactionType == TTAdConstant.INTERACTION_TYPE_DOWNLOAD) {
-            adObject.setDownloadListener(object : TTAppDownloadListener {
-                override fun onIdle() {}
-                override fun onDownloadPaused(p0: Long, p1: Long, p2: String?, p3: String?) {}
-                override fun onDownloadFailed(p0: Long, p1: Long, p2: String?, p3: String?) {}
-                override fun onDownloadActive(p0: Long, p1: Long, p2: String?, p3: String?) {}
-                override fun onDownloadFinished(p0: Long, p1: String?, p2: String?) {}
-                override fun onInstalled(p0: String?, p1: String?) {}
-            })
+    if (adObject.interactionType == TTAdConstant.INTERACTION_TYPE_DOWNLOAD) {
+      adObject.setDownloadListener(object : TTAppDownloadListener {
+        override fun onIdle() {}
+        override fun onDownloadPaused(
+          p0: Long,
+          p1: Long,
+          p2: String?,
+          p3: String?
+        ) {
         }
-        adObject.render()
-        val parent = adObject.expressAdView?.parent
-        if (parent is ViewGroup) {
-            parent.removeAllViews()
+
+        override fun onDownloadFailed(
+          p0: Long,
+          p1: Long,
+          p2: String?,
+          p3: String?
+        ) {
         }
-        container.addView(adObject.expressAdView)
+
+        override fun onDownloadActive(
+          p0: Long,
+          p1: Long,
+          p2: String?,
+          p3: String?
+        ) {
+        }
+
+        override fun onDownloadFinished(
+          p0: Long,
+          p1: String?,
+          p2: String?
+        ) {
+        }
+
+        override fun onInstalled(
+          p0: String?,
+          p1: String?
+        ) {
+        }
+      })
     }
-
+    adObject.render()
+    val parent = adObject.expressAdView?.parent
+    if (parent is ViewGroup) {
+      parent.removeAllViews()
+    }
+    container.addView(adObject.expressAdView)
+  }
 }

@@ -8,6 +8,9 @@ import org.jetbrains.annotations.NotNull
  */
 abstract class BaseNativeExpressView {
 
-    abstract fun showNativeExpress(@NotNull adProviderType: String, @NotNull adObject: Any, @NotNull container: ViewGroup)
-
+  abstract fun showNativeExpress(
+    @NotNull adProviderType: String,
+    @NotNull adObject: Any,
+    @NotNull container: ViewGroup
+  )
 }

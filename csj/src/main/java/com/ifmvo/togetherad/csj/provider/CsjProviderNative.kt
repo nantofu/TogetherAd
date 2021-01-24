@@ -14,10 +14,16 @@ import com.ifmvo.togetherad.csj.TogetherAdCsj
  */
 abstract class CsjProviderNative : CsjProviderInter() {
 
-    override fun getNativeAdList(activity: Activity, adProviderType: String, alias: String, maxCount: Int, listener: NativeListener) {
-        if (CsjProvider.Native.nativeAdType == -1) {
-            throw IllegalArgumentException(
-                    """
+  override fun getNativeAdList(
+    activity: Activity,
+    adProviderType: String,
+    alias: String,
+    maxCount: Int,
+    listener: NativeListener
+  ) {
+    if (CsjProvider.Native.nativeAdType == -1) {
+      throw IllegalArgumentException(
+        """
     |-------------------------------------------------------------------------------------- 
     |  必须在每次请求穿山甲的原生广告之前设置类型。
     |  设置方式：
@@ -34,60 +40,66 @@ abstract class CsjProviderNative : CsjProviderInter() {
     |--------------------------------------------------------------------------------------
 
 """
-            )
+      )
+    }
+
+    callbackNativeStartRequest(adProviderType, alias, listener)
+
+    val adSlot = AdSlot.Builder()
+      .setCodeId(TogetherAdCsj.idMapCsj[alias])
+      .setSupportDeepLink(CsjProvider.Native.supportDeepLink)
+      .setImageAcceptedSize(
+        CsjProvider.Native.imageAcceptedSizeWidth,
+        CsjProvider.Native.imageAcceptedSizeHeight
+      )
+      .setNativeAdType(CsjProvider.Native.nativeAdType)
+      .setAdCount(maxCount)
+      .build()
+    TTAdSdk.getAdManager().createAdNative(activity)
+      .loadNativeAd(adSlot, object : TTAdNative.NativeAdListener {
+        override fun onNativeAdLoad(adList: MutableList<TTNativeAd>?) {
+          if (adList.isNullOrEmpty()) {
+            callbackNativeFailed(adProviderType, alias, listener, null, "请求成功，但是返回的list为空")
+            return
+          }
+
+          callbackNativeLoaded(adProviderType, alias, listener, adList)
         }
 
-        callbackNativeStartRequest(adProviderType, alias, listener)
-
-        val adSlot = AdSlot.Builder()
-                .setCodeId(TogetherAdCsj.idMapCsj[alias])
-                .setSupportDeepLink(CsjProvider.Native.supportDeepLink)
-                .setImageAcceptedSize(CsjProvider.Native.imageAcceptedSizeWidth, CsjProvider.Native.imageAcceptedSizeHeight)
-                .setNativeAdType(CsjProvider.Native.nativeAdType)
-                .setAdCount(maxCount)
-                .build()
-        TTAdSdk.getAdManager().createAdNative(activity).loadNativeAd(adSlot, object : TTAdNative.NativeAdListener {
-            override fun onNativeAdLoad(adList: MutableList<TTNativeAd>?) {
-                if (adList.isNullOrEmpty()) {
-                    callbackNativeFailed(adProviderType, alias, listener, null, "请求成功，但是返回的list为空")
-                    return
-                }
-
-                callbackNativeLoaded(adProviderType, alias, listener, adList)
-            }
-
-            override fun onError(errorCode: Int, errorMsg: String?) {
-                callbackNativeFailed(adProviderType, alias, listener, errorCode, errorMsg)
-            }
-        })
-    }
-
-    override fun resumeNativeAd(adObject: Any) {
-        when (adObject) {
-            is TTNativeAd -> {
-
-            }
+        override fun onError(
+          errorCode: Int,
+          errorMsg: String?
+        ) {
+          callbackNativeFailed(adProviderType, alias, listener, errorCode, errorMsg)
         }
+      })
+  }
+
+  override fun resumeNativeAd(adObject: Any) {
+    when (adObject) {
+      is TTNativeAd -> {
+
+      }
     }
+  }
 
-    override fun pauseNativeAd(adObject: Any) {
-        when (adObject) {
-            is TTNativeAd -> {
+  override fun pauseNativeAd(adObject: Any) {
+    when (adObject) {
+      is TTNativeAd -> {
 
-            }
-        }
+      }
     }
+  }
 
-    override fun destroyNativeAd(adObject: Any) {
-        when (adObject) {
-            is TTNativeAd -> {
+  override fun destroyNativeAd(adObject: Any) {
+    when (adObject) {
+      is TTNativeAd -> {
 
-            }
-        }
+      }
     }
+  }
 
-    override fun nativeAdIsBelongTheProvider(adObject: Any): Boolean {
-        return adObject is TTNativeAd
-    }
-
+  override fun nativeAdIsBelongTheProvider(adObject: Any): Boolean {
+    return adObject is TTNativeAd
+  }
 }

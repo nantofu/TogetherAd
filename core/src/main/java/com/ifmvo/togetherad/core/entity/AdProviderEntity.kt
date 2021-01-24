@@ -9,17 +9,17 @@ import org.jetbrains.annotations.NotNull
  */
 data class AdProviderEntity(
 
-        // key 标示，唯一
-        @NotNull val providerType: String,
+  // key 标示，唯一
+  @NotNull val providerType: String,
 
-        //Provider 类的路径
-        @NotNull val classPath: String,
+  //Provider 类的路径
+  @NotNull val classPath: String,
 
-        //Provider 的描述
-        @NotNull val desc: String = classPath
+  //Provider 的描述
+  @NotNull val desc: String = classPath
 
 ) {
-    override fun toString(): String {
-        return "AdProviderEntity(providerType=$providerType, classPath='$classPath', desc='$desc')"
-    }
+  override fun toString(): String {
+    return "AdProviderEntity(providerType=$providerType, classPath='$classPath', desc='$desc')"
+  }
 }

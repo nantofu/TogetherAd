@@ -17,94 +17,99 @@ import java.lang.ref.WeakReference
  */
 class AdHelperFullVideo(
 
-        @NotNull activity: Activity,
-        @NotNull alias: String,
-        ratioMap: LinkedHashMap<String, Int>? = null,
-        listener: FullVideoListener? = null
+  @NotNull activity: Activity,
+  @NotNull alias: String,
+  ratioMap: LinkedHashMap<String, Int>? = null,
+  listener: FullVideoListener? = null
 
 ) : BaseHelper() {
 
-    private var mActivity: WeakReference<Activity> = WeakReference(activity)
-    private var mAlias: String = alias
-    private var mRatioMap: LinkedHashMap<String, Int>? = ratioMap
-    private var mListener: FullVideoListener? = listener
-    private var adProvider: BaseAdProvider? = null
+  private var mActivity: WeakReference<Activity> = WeakReference(activity)
+  private var mAlias: String = alias
+  private var mRatioMap: LinkedHashMap<String, Int>? = ratioMap
+  private var mListener: FullVideoListener? = listener
+  private var adProvider: BaseAdProvider? = null
 
-    //为了照顾 Java 调用的同学
-    constructor(
-            @NotNull activity: Activity,
-            @NotNull alias: String,
-            listener: FullVideoListener? = null
-    ) : this(activity, alias, null, listener)
+  //为了照顾 Java 调用的同学
+  constructor(
+    @NotNull activity: Activity,
+    @NotNull alias: String,
+    listener: FullVideoListener? = null
+  ) : this(activity, alias, null, listener)
 
-    fun load() {
-        val currentRatioMap: LinkedHashMap<String, Int> = if (mRatioMap?.isEmpty() != false) TogetherAd.getPublicProviderRatio() else mRatioMap!!
+  fun load() {
+    val currentRatioMap: LinkedHashMap<String, Int> =
+      if (mRatioMap?.isEmpty() != false) TogetherAd.getPublicProviderRatio() else mRatioMap!!
 
-        startTimer(mListener)
-        reload(currentRatioMap)
+    startTimer(mListener)
+    reload(currentRatioMap)
+  }
+
+  private fun reload(@NotNull ratioMap: LinkedHashMap<String, Int>) {
+
+    val adProviderType = DispatchUtil.getAdProvider(mAlias, ratioMap)
+
+    if (adProviderType?.isEmpty() != false || mActivity.get() == null) {
+      cancelTimer()
+      mListener?.onAdFailedAll(FailedAllMsg.failedAll_noDispatch)
+      return
     }
 
-    private fun reload(@NotNull ratioMap: LinkedHashMap<String, Int>) {
+    adProvider = AdProviderLoader.loadAdProvider(adProviderType)
 
-        val adProviderType = DispatchUtil.getAdProvider(mAlias, ratioMap)
+    if (adProvider == null) {
+      "$adProviderType ${mActivity.get()?.getString(R.string.no_init)}".loge()
+      reload(filterType(ratioMap, adProviderType))
+      return
+    }
 
-        if (adProviderType?.isEmpty() != false || mActivity.get() == null) {
-            cancelTimer()
-            mListener?.onAdFailedAll(FailedAllMsg.failedAll_noDispatch)
-            return
+    adProvider?.requestFullVideoAd(mActivity.get()!!, adProviderType, mAlias,
+      object : FullVideoListener {
+        override fun onAdStartRequest(providerType: String) {
+          mListener?.onAdStartRequest(providerType)
         }
 
-        adProvider = AdProviderLoader.loadAdProvider(adProviderType)
+        override fun onAdFailed(
+          providerType: String,
+          failedMsg: String?
+        ) {
+          if (isFetchOverTime) return
 
-        if (adProvider == null) {
-            "$adProviderType ${mActivity.get()?.getString(R.string.no_init)}".loge()
-            reload(filterType(ratioMap, adProviderType))
-            return
+          reload(filterType(ratioMap, adProviderType))
+
+          mListener?.onAdFailed(providerType, failedMsg)
         }
 
-        adProvider?.requestFullVideoAd(mActivity.get()!!, adProviderType, mAlias, object : FullVideoListener {
-            override fun onAdStartRequest(providerType: String) {
-                mListener?.onAdStartRequest(providerType)
-            }
+        override fun onAdClicked(providerType: String) {
+          mListener?.onAdClicked(providerType)
+        }
 
-            override fun onAdFailed(providerType: String, failedMsg: String?) {
-                if (isFetchOverTime) return
+        override fun onAdShow(providerType: String) {
+          mListener?.onAdShow(providerType)
+        }
 
-                reload(filterType(ratioMap, adProviderType))
+        override fun onAdLoaded(providerType: String) {
+          if (isFetchOverTime) return
 
-                mListener?.onAdFailed(providerType, failedMsg)
-            }
+          cancelTimer()
+          mListener?.onAdLoaded(providerType)
+        }
 
-            override fun onAdClicked(providerType: String) {
-                mListener?.onAdClicked(providerType)
-            }
+        override fun onAdVideoComplete(providerType: String) {
+          mListener?.onAdVideoComplete(providerType)
+        }
 
-            override fun onAdShow(providerType: String) {
-                mListener?.onAdShow(providerType)
-            }
+        override fun onAdVideoCached(providerType: String) {
+          mListener?.onAdVideoCached(providerType)
+        }
 
-            override fun onAdLoaded(providerType: String) {
-                if (isFetchOverTime) return
+        override fun onAdClose(providerType: String) {
+          mListener?.onAdClose(providerType)
+        }
+      })
+  }
 
-                cancelTimer()
-                mListener?.onAdLoaded(providerType)
-            }
-
-            override fun onAdVideoComplete(providerType: String) {
-                mListener?.onAdVideoComplete(providerType)
-            }
-
-            override fun onAdVideoCached(providerType: String) {
-                mListener?.onAdVideoCached(providerType)
-            }
-
-            override fun onAdClose(providerType: String) {
-                mListener?.onAdClose(providerType)
-            }
-        })
-    }
-
-    fun show() {
-        mActivity.get()?.let { adProvider?.showFullVideoAd(it) }
-    }
+  fun show() {
+    mActivity.get()?.let { adProvider?.showFullVideoAd(it) }
+  }
 }

@@ -11,6 +11,11 @@ import org.jetbrains.annotations.Nullable
  */
 abstract class BaseNativeExpress2View {
 
-    abstract fun showNativeExpress2(@NotNull activity: Activity, @NotNull adProviderType: String, @NotNull adObject: Any, @NotNull container: ViewGroup, @Nullable listener: NativeExpress2ViewListener? = null)
-
+  abstract fun showNativeExpress2(
+    @NotNull activity: Activity,
+    @NotNull adProviderType: String,
+    @NotNull adObject: Any,
+    @NotNull container: ViewGroup,
+    @Nullable listener: NativeExpress2ViewListener? = null
+  )
 }

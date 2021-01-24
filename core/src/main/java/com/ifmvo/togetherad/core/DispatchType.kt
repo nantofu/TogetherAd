@@ -7,14 +7,13 @@ package com.ifmvo.togetherad.core
  */
 enum class DispatchType {
 
-    /**
-     * 按照权重随机分发
-     */
-    Random,
+  /**
+   * 按照权重随机分发
+   */
+  Random,
 
-    /**
-     * 按照优先级分发广告
-     */
-    Priority
-
+  /**
+   * 按照优先级分发广告
+   */
+  Priority
 }

@@ -13,18 +13,18 @@ import com.ifmvo.togetherad.gdt.native_.view.NativeViewGdtSimple2
  */
 class NativeTemplateSimple2 : BaseNativeTemplate() {
 
-    override fun getNativeView(adProviderType: String): BaseNativeView? {
-        return when (adProviderType) {
-            AdProviderType.GDT.type -> {
-                NativeViewGdtSimple2()
-            }
-            AdProviderType.CSJ.type -> {
-                NativeViewCsjSimple2()
-            }
-            AdProviderType.BAIDU.type -> {
-                NativeViewBaiduSimple2()
-            }
-            else -> throw Exception("模板配置错误")
-        }
+  override fun getNativeView(adProviderType: String): BaseNativeView? {
+    return when (adProviderType) {
+      AdProviderType.GDT.type -> {
+        NativeViewGdtSimple2()
+      }
+      AdProviderType.CSJ.type -> {
+        NativeViewCsjSimple2()
+      }
+      AdProviderType.BAIDU.type -> {
+        NativeViewBaiduSimple2()
+      }
+      else -> throw Exception("模板配置错误")
     }
+  }
 }

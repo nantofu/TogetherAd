@@ -15,50 +15,59 @@ import com.qq.e.comm.util.AdError
  */
 abstract class GdtProviderBanner : BaseAdProvider() {
 
-    private var banner: UnifiedBannerView? = null
-    override fun showBannerAd(activity: Activity, adProviderType: String, alias: String, container: ViewGroup, listener: BannerListener) {
-        callbackBannerStartRequest(adProviderType, alias, listener)
-        destroyBannerAd()
-        banner = UnifiedBannerView(activity, TogetherAdGdt.idMapGDT[alias], object : UnifiedBannerADListener {
-            override fun onADCloseOverlay() {
-            }
+  private var banner: UnifiedBannerView? = null
+  override fun showBannerAd(
+    activity: Activity,
+    adProviderType: String,
+    alias: String,
+    container: ViewGroup,
+    listener: BannerListener
+  ) {
+    callbackBannerStartRequest(adProviderType, alias, listener)
+    destroyBannerAd()
+    banner =
+      UnifiedBannerView(activity, TogetherAdGdt.idMapGDT[alias], object : UnifiedBannerADListener {
+        override fun onADCloseOverlay() {
+        }
 
-            override fun onADExposure() {
-                callbackBannerExpose(adProviderType, listener)
-            }
+        override fun onADExposure() {
+          callbackBannerExpose(adProviderType, listener)
+        }
 
-            override fun onADClosed() {
-                destroyBannerAd()
-                callbackBannerClosed(adProviderType, listener)
-            }
+        override fun onADClosed() {
+          destroyBannerAd()
+          callbackBannerClosed(adProviderType, listener)
+        }
 
-            override fun onADLeftApplication() {
-            }
+        override fun onADLeftApplication() {
+        }
 
-            override fun onADOpenOverlay() {
-            }
+        override fun onADOpenOverlay() {
+        }
 
-            override fun onNoAD(adError: AdError?) {
-                destroyBannerAd()
-                callbackBannerFailed(adProviderType, alias, listener, adError?.errorCode, adError?.errorMsg)
-            }
+        override fun onNoAD(adError: AdError?) {
+          destroyBannerAd()
+          callbackBannerFailed(
+            adProviderType, alias, listener, adError?.errorCode,
+            adError?.errorMsg
+          )
+        }
 
-            override fun onADReceive() {
-                callbackBannerLoaded(adProviderType, alias, listener)
-            }
+        override fun onADReceive() {
+          callbackBannerLoaded(adProviderType, alias, listener)
+        }
 
-            override fun onADClicked() {
-                callbackBannerClicked(adProviderType, listener)
-            }
-        })
-        container.addView(banner)
-        banner?.setRefresh(GdtProvider.Banner.slideIntervalTime)
-        banner?.loadAD()
-    }
+        override fun onADClicked() {
+          callbackBannerClicked(adProviderType, listener)
+        }
+      })
+    container.addView(banner)
+    banner?.setRefresh(GdtProvider.Banner.slideIntervalTime)
+    banner?.loadAD()
+  }
 
-    override fun destroyBannerAd() {
-        banner?.destroy()
-        banner = null
-    }
-
+  override fun destroyBannerAd() {
+    banner?.destroy()
+    banner = null
+  }
 }

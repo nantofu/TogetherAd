@@ -19,7 +19,8 @@
 //        super.onCreate();
 //
 //        //初始化穿山甲
-//        TogetherAdCsj.INSTANCE.init(this, AdProviderType.CSJ.getType(), "5001121", this.getString(R.string.app_name));
+//        TogetherAdCsj.INSTANCE.init(this, AdProviderType.CSJ.getType(), "5001121", this
+//        .getString(R.string.app_name));
 //        //初始化广点通
 //        TogetherAdGdt.INSTANCE.init(this, AdProviderType.GDT.getType(), "1101152570");
 //        //初始化百青藤

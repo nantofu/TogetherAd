@@ -4,28 +4,32 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    tools:context=".MainActivity">
+    tools:context=".MainActivity"
+    >
 
-    <FrameLayout
-        android:id="@+id/adContainer"
+  <FrameLayout
+      android:id="@+id/adContainer"
+      android:layout_width="match_parent"
+      android:layout_height="0dp"
+      android:layout_weight="1"
+      />
+
+  <ScrollView
+      android:id="@+id/info"
+      android:layout_width="match_parent"
+      android:layout_height="100dp"
+      >
+
+    <TextView
+        android:id="@+id/log"
         android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1" />
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:textColor="@android:color/black"
+        android:textSize="20sp"
+        tools:text="日志"
+        />
 
-    <ScrollView
-        android:id="@+id/info"
-        android:layout_width="match_parent"
-        android:layout_height="100dp">
-
-        <TextView
-            android:id="@+id/log"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:gravity="center"
-            android:textColor="@android:color/black"
-            android:textSize="20sp"
-            tools:text="日志" />
-
-    </ScrollView>
+  </ScrollView>
 
 </LinearLayout>

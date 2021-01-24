@@ -14,23 +14,48 @@ import org.jetbrains.annotations.NotNull
  */
 object TogetherAdGdt {
 
-    var idMapGDT = mutableMapOf<String, String>()
+  var idMapGDT = mutableMapOf<String, String>()
 
-    fun init(@NotNull context: Context, @NotNull adProviderType: String, @NotNull gdtAdAppId: String) {
-        init(context, adProviderType, gdtAdAppId, null, null)
-    }
+  fun init(
+    @NotNull context: Context,
+    @NotNull adProviderType: String,
+    @NotNull gdtAdAppId: String
+  ) {
+    init(context, adProviderType, gdtAdAppId, null, null)
+  }
 
-    fun init(@NotNull context: Context, @NotNull adProviderType: String, @NotNull gdtAdAppId: String, providerClassPath: String? = null) {
-        init(context, adProviderType, gdtAdAppId, null, providerClassPath)
-    }
+  fun init(
+    @NotNull context: Context,
+    @NotNull adProviderType: String,
+    @NotNull gdtAdAppId: String,
+    providerClassPath: String? = null
+  ) {
+    init(context, adProviderType, gdtAdAppId, null, providerClassPath)
+  }
 
-    fun init(@NotNull context: Context, @NotNull adProviderType: String, @NotNull gdtAdAppId: String, gdtIdMap: Map<String, String>? = null) {
-        init(context, adProviderType, gdtAdAppId, gdtIdMap, null)
-    }
+  fun init(
+    @NotNull context: Context,
+    @NotNull adProviderType: String,
+    @NotNull gdtAdAppId: String,
+    gdtIdMap: Map<String, String>? = null
+  ) {
+    init(context, adProviderType, gdtAdAppId, gdtIdMap, null)
+  }
 
-    fun init(@NotNull context: Context, @NotNull adProviderType: String, @NotNull gdtAdAppId: String, gdtIdMap: Map<String, String>? = null, providerClassPath: String? = null) {
-        TogetherAd.addProvider(AdProviderEntity(adProviderType, if (providerClassPath?.isEmpty() != false) GdtProvider::class.java.name else providerClassPath))
-        gdtIdMap?.let { idMapGDT.putAll(it) }
-        GDTADManager.getInstance().initWith(context, gdtAdAppId)
-    }
+  fun init(
+    @NotNull context: Context,
+    @NotNull adProviderType: String,
+    @NotNull gdtAdAppId: String,
+    gdtIdMap: Map<String, String>? = null,
+    providerClassPath: String? = null
+  ) {
+    TogetherAd.addProvider(
+      AdProviderEntity(
+        adProviderType,
+        if (providerClassPath?.isEmpty() != false) GdtProvider::class.java.name else providerClassPath
+      )
+    )
+    gdtIdMap?.let { idMapGDT.putAll(it) }
+    GDTADManager.getInstance().initWith(context, gdtAdAppId)
+  }
 }

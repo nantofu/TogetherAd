@@ -3,109 +3,109 @@
     xmlns:tools="http://schemas.android.com/tools"
     package="com.ifmvo.togetherad.demo">
 
-    <application
-        android:name=".app.App"
-        android:allowBackup="true"
-        android:icon="@mipmap/ic_launcher"
-        android:label="@string/app_name"
-        android:roundIcon="@mipmap/ic_launcher_round"
-        android:supportsRtl="true"
-        android:theme="@style/AppTheme"
-        tools:ignore="GoogleAppIndexingWarning">
+  <application
+      android:name=".app.App"
+      android:allowBackup="true"
+      android:icon="@mipmap/ic_launcher"
+      android:label="@string/app_name"
+      android:roundIcon="@mipmap/ic_launcher_round"
+      android:supportsRtl="true"
+      android:theme="@style/AppTheme"
+      tools:ignore="GoogleAppIndexingWarning">
 
-        <activity android:name=".MainActivity">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-        </activity>
+    <activity android:name=".MainActivity">
+      <intent-filter>
+        <action android:name="android.intent.action.MAIN" />
+        <category android:name="android.intent.category.LAUNCHER" />
+      </intent-filter>
+    </activity>
 
-        <!--
-            开屏界面
-        -->
-        <activity
-            android:name=".splash.SplashActivity"
-            android:theme="@style/SplashTheme" />
+    <!--
+        开屏界面
+    -->
+    <activity
+        android:name=".splash.SplashActivity"
+        android:theme="@style/SplashTheme" />
 
-        <!--
-            开屏界面 （ 请求与展示分开 ）
-        -->
-        <activity
-            android:name=".splash.SplashProActivity"
-            android:theme="@style/SplashTheme" />
+    <!--
+        开屏界面 （ 请求与展示分开 ）
+    -->
+    <activity
+        android:name=".splash.SplashProActivity"
+        android:theme="@style/SplashTheme" />
 
-        <!--
-            开屏 & 原生 混合使用
-        -->
-        <activity
-            android:name=".hybrid.SplashHybridActivity"
-            android:theme="@style/SplashTheme" />
+    <!--
+        开屏 & 原生 混合使用
+    -->
+    <activity
+        android:name=".hybrid.SplashHybridActivity"
+        android:theme="@style/SplashTheme" />
 
-        <!--
-            原生模板2.0的简单用法
-        -->
-        <activity android:name=".express2.NativeExpress2SimpleActivity" />
+    <!--
+        原生模板2.0的简单用法
+    -->
+    <activity android:name=".express2.NativeExpress2SimpleActivity" />
 
-        <!--
-            原生模板2.0 在 RecyclerView 中的用法
-        -->
-        <activity android:name=".express2.NativeExpress2RecyclerViewActivity" />
+    <!--
+        原生模板2.0 在 RecyclerView 中的用法
+    -->
+    <activity android:name=".express2.NativeExpress2RecyclerViewActivity" />
 
-        <!--
-            原生模板的简单用法
-        -->
-        <activity android:name=".express.NativeExpressSimpleActivity" />
+    <!--
+        原生模板的简单用法
+    -->
+    <activity android:name=".express.NativeExpressSimpleActivity" />
 
-        <!--
-            原生模板1.0 在 RecyclerView 中的用法
-        -->
-        <activity android:name=".express.NativeExpressRecyclerViewActivity" />
+    <!--
+        原生模板1.0 在 RecyclerView 中的用法
+    -->
+    <activity android:name=".express.NativeExpressRecyclerViewActivity" />
 
-        <!--
-            原生信息流的简单用法
-        -->
-        <activity android:name=".native_.NativeSimpleActivity" />
+    <!--
+        原生信息流的简单用法
+    -->
+    <activity android:name=".native_.NativeSimpleActivity" />
 
-        <!--
-            原生信息流在 RecyclerView 中的用法
-        -->
-        <activity android:name=".native_.NativeRecyclerViewActivity" />
+    <!--
+        原生信息流在 RecyclerView 中的用法
+    -->
+    <activity android:name=".native_.NativeRecyclerViewActivity" />
 
-        <!--
-            激励广告
-        -->
-        <activity android:name=".reward.RewardActivity" />
+    <!--
+        激励广告
+    -->
+    <activity android:name=".reward.RewardActivity" />
 
-        <!--
-            踩坑指南
-        -->
-        <activity android:name=".other.HelpActivity" />
+    <!--
+        踩坑指南
+    -->
+    <activity android:name=".other.HelpActivity" />
 
-        <!--
-            Banner 横幅广告
-        -->
-        <activity android:name=".banner.BannerActivity" />
+    <!--
+        Banner 横幅广告
+    -->
+    <activity android:name=".banner.BannerActivity" />
 
-        <!--
-            Interstitial 插屏广告
-        -->
-        <activity android:name=".inter.InterActivity" />
+    <!--
+        Interstitial 插屏广告
+    -->
+    <activity android:name=".inter.InterActivity" />
 
-        <!--
-            原生模板1.0 & 原生模板2.0 混合使用
-        -->
-        <activity android:name=".hybrid.NativeExpressHybridActivity" />
+    <!--
+        原生模板1.0 & 原生模板2.0 混合使用
+    -->
+    <activity android:name=".hybrid.NativeExpressHybridActivity" />
 
-        <!--
-            全屏视频广告
-        -->
-        <activity android:name=".fullvideo.FullVideoActivity" />
+    <!--
+        全屏视频广告
+    -->
+    <activity android:name=".fullvideo.FullVideoActivity" />
 
-        <!--
-            全屏竖屏前贴广告（ 激励、全屏视频、原生自渲染混合使用 ）
-        -->
-        <activity android:name=".hybrid.VerticalPreMovieHybridActivity" />
+    <!--
+        全屏竖屏前贴广告（ 激励、全屏视频、原生自渲染混合使用 ）
+    -->
+    <activity android:name=".hybrid.VerticalPreMovieHybridActivity" />
 
-    </application>
+  </application>
 
 </manifest>

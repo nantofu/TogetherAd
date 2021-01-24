@@ -10,6 +10,10 @@ import org.jetbrains.annotations.Nullable
  */
 abstract class BaseNativeView {
 
-    abstract fun showNative(@NotNull adProviderType: String, @NotNull adObject: Any, @NotNull container: ViewGroup, @Nullable listener: NativeViewListener? = null)
-
+  abstract fun showNative(
+    @NotNull adProviderType: String,
+    @NotNull adObject: Any,
+    @NotNull container: ViewGroup,
+    @Nullable listener: NativeViewListener? = null
+  )
 }

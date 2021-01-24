@@ -14,57 +14,65 @@ import com.qq.e.comm.util.AdError
  */
 abstract class GdtProviderInter : GdtProviderFullVideo() {
 
-    private var interAd: UnifiedInterstitialAD? = null
-    override fun requestInterAd(activity: Activity, adProviderType: String, alias: String, listener: InterListener) {
+  private var interAd: UnifiedInterstitialAD? = null
+  override fun requestInterAd(
+    activity: Activity,
+    adProviderType: String,
+    alias: String,
+    listener: InterListener
+  ) {
 
-        callbackInterStartRequest(adProviderType, alias, listener)
+    callbackInterStartRequest(adProviderType, alias, listener)
 
-        destroyInterAd()
+    destroyInterAd()
 
-        interAd = UnifiedInterstitialAD(activity, TogetherAdGdt.idMapGDT[alias], object : UnifiedInterstitialADListener {
-            override fun onADExposure() {
-                callbackInterExpose(adProviderType, listener)
-            }
+    interAd = UnifiedInterstitialAD(activity, TogetherAdGdt.idMapGDT[alias],
+      object : UnifiedInterstitialADListener {
+        override fun onADExposure() {
+          callbackInterExpose(adProviderType, listener)
+        }
 
-            override fun onVideoCached() {
-                "onVideoCached".logi(tag)
-            }
+        override fun onVideoCached() {
+          "onVideoCached".logi(tag)
+        }
 
-            override fun onADOpened() {
-                "onADOpened".logi(tag)
-            }
+        override fun onADOpened() {
+          "onADOpened".logi(tag)
+        }
 
-            override fun onADClosed() {
-                callbackInterClosed(adProviderType, listener)
-            }
+        override fun onADClosed() {
+          callbackInterClosed(adProviderType, listener)
+        }
 
-            override fun onADLeftApplication() {
-                "onADLeftApplication".logi(tag)
-            }
+        override fun onADLeftApplication() {
+          "onADLeftApplication".logi(tag)
+        }
 
-            override fun onADReceive() {
-                callbackInterLoaded(adProviderType, alias, listener)
-            }
+        override fun onADReceive() {
+          callbackInterLoaded(adProviderType, alias, listener)
+        }
 
-            override fun onNoAD(adError: AdError?) {
-                callbackInterFailed(adProviderType, alias, listener, adError?.errorCode, adError?.errorMsg)
-            }
+        override fun onNoAD(adError: AdError?) {
+          callbackInterFailed(
+            adProviderType, alias, listener, adError?.errorCode,
+            adError?.errorMsg
+          )
+        }
 
-            override fun onADClicked() {
-                callbackInterClicked(adProviderType, listener)
-            }
-        })
-        interAd?.loadAD()
-    }
+        override fun onADClicked() {
+          callbackInterClicked(adProviderType, listener)
+        }
+      })
+    interAd?.loadAD()
+  }
 
-    override fun showInterAd(activity: Activity) {
-        interAd?.show()
-    }
+  override fun showInterAd(activity: Activity) {
+    interAd?.show()
+  }
 
-    override fun destroyInterAd() {
-        interAd?.close()
-        interAd?.destroy()
-        interAd = null
-    }
-
+  override fun destroyInterAd() {
+    interAd?.close()
+    interAd?.destroy()
+    interAd = null
+  }
 }
